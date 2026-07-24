@@ -23,6 +23,7 @@ export async function editCommand(
       parent: { hasValue: true },
       "add-blocker": { hasValue: true },
       "remove-blocker": { hasValue: true },
+      "remove-parent": { hasValue: false },
       commit: { short: "c", hasValue: true },
       help: { short: "h", hasValue: false },
     },
@@ -45,6 +46,7 @@ ${colors.bold}OPTIONS:${colors.reset}
   --parent <id>              New parent task ID
   --add-blocker <ids>        Comma-separated task IDs to add as blockers
   --remove-blocker <ids>     Comma-separated task IDs to remove as blockers
+  --remove-parent            Change the task from a subtask to a task
   -c, --commit <sha>         Link a git commit to the task
   -h, --help                 Show this help message
 
@@ -54,6 +56,7 @@ ${colors.bold}EXAMPLE:${colors.reset}
   dex edit abc123 --description "More details about the task"
   dex edit abc123 --add-blocker def456
   dex edit abc123 --remove-blocker def456
+  dex edit abc123 --remove-parent
   dex edit abc123 --commit a1b2c3d
 `);
     return;
@@ -97,6 +100,20 @@ ${colors.bold}EXAMPLE:${colors.reset}
     process.exit(1);
   }
 
+  // Determine what parentId to assign to the task
+  const removeParent = getBooleanFlag(flags, "remove-parent");
+  const setParentId = getStringFlag(flags, "parent");
+  if (removeParent && setParentId) {
+    console.error(
+      `${colors.red}Error:${colors.reset} You cannot both remove a parent and set a new parent.`,
+    );
+    console.error(
+      `  Use --parent <id> to overwrite the existing parent ID with another parent task.`,
+    );
+    process.exit(1);
+  }
+  const newParentId = removeParent ? null : setParentId;
+
   const service = createService(options);
   try {
     // Fetch existing task to merge metadata
@@ -122,7 +139,7 @@ ${colors.bold}EXAMPLE:${colors.reset}
       id,
       name: getStringFlag(flags, "name"),
       description: getStringFlag(flags, "description"),
-      parent_id: getStringFlag(flags, "parent"),
+      parent_id: newParentId,
       priority: parseIntFlag(flags, "priority"),
       add_blocked_by: addBlockedBy,
       remove_blocked_by: removeBlockedBy,

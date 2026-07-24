@@ -285,11 +285,90 @@ describe("edit command", () => {
     expect(out).toContain("--description");
     expect(out).toContain("--add-blocker");
     expect(out).toContain("--remove-blocker");
+    expect(out).toContain("--remove-parent");
   });
 
   it("requires task ID", async () => {
     await expect(runCli(["edit"], { storage })).rejects.toThrow("process.exit");
     expect(output.stderr.join("\n")).toContain("Task ID is required");
+  });
+
+  it("fails if both --remove-parent and --parent is provided", async () => {
+    await expect(
+      runCli(
+        [
+          "edit",
+          "abc123", // taskId
+          "--remove-parent",
+          "--parent",
+          "def456", // parentId
+        ],
+        { storage },
+      ),
+    ).rejects.toThrow("process.exit");
+
+    const out = output.stderr.join("\n");
+    expect(out).toContain(
+      "You cannot both remove a parent and set a new parent.",
+    );
+    expect(out).toContain(
+      "Use --parent <id> to overwrite the existing parent ID with another parent task.",
+    );
+  });
+
+  it("removes parent_id from task if --remove-parent is provided", async () => {
+    // Create parent task
+    await runCli(["create", "-n", "Test task", "--description", "ctx"], {
+      storage,
+    });
+    const parentTaskId = output.stdout.join("\n").match(TASK_ID_REGEX)?.[1];
+    output.stdout.length = 0;
+
+    // Create subtask
+    await runCli(
+      [
+        "create",
+        "-n",
+        "Test subtask",
+        "--description",
+        "ctx",
+        "--parent",
+        parentTaskId!,
+      ],
+      {
+        storage,
+      },
+    );
+    const taskId = output.stdout.join("\n").match(TASK_ID_REGEX)?.[1];
+    output.stdout.length = 0;
+
+    // Test the paren taks lists the subtask as a child
+    await runCli(["show", parentTaskId!, "--json"], { storage });
+    let showOut = output.stdout.join("\n");
+    expect(JSON.parse(showOut).children.includes(taskId!)).toBe(true);
+    output.stdout.length = 0;
+
+    // Test the task is a child of the parent task
+    await runCli(["show", taskId!], { storage });
+    showOut = output.stdout.join("\n");
+    expect(showOut).toContain(`View parent task: dex show ${parentTaskId!}`);
+    output.stdout.length = 0;
+
+    // Remove the parent
+    await runCli(["edit", taskId!, "--remove-parent"], { storage });
+    output.stdout.length = 0;
+
+    // Test the task no longer shows it's parent task
+    await runCli(["show", taskId!], { storage });
+    showOut = output.stdout.join("\n");
+    expect(showOut).not.toContain("View parent task");
+    output.stdout.length = 0;
+
+    // Test the parent task no longer lists the subtask as a child
+    await runCli(["show", parentTaskId!, "--json"], { storage });
+    showOut = output.stdout.join("\n");
+    expect(JSON.parse(showOut).children.includes(taskId!)).toBe(false);
+    output.stdout.length = 0;
   });
 
   it("links commit to task with --commit flag", async () => {
