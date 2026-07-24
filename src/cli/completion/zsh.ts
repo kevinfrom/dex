@@ -65,6 +65,7 @@ _dex() {
                                 '(-d --description)'{-d,--description}'[New description]:description:' \\
                                 '(-p --priority)'{-p,--priority}'[New priority]:priority:' \\
                                 '--parent[New parent task ID]:parent:_dex_task_ids' \\
+                                '--remove-parent[Promote subtask to top-level task]' \\
                                 '--add-blocker[Add blocker task IDs]:blockers:_dex_task_ids' \\
                                 '--remove-blocker[Remove blocker task IDs]:blockers:_dex_task_ids' \\
                                 '(-h --help)'{-h,--help}'[Show help]'

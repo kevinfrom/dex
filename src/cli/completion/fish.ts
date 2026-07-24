@@ -97,6 +97,7 @@ complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (
 complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -s d -l description -d "New description" -r
 complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -s p -l priority -d "New priority" -r
 complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -l parent -d "New parent task ID" -r -a "(__dex_task_ids)"
+complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -l remove-parent -d "Promote subtask to top-level task"
 complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -s s -l status -d "New status" -r -a "pending completed"
 complete -c dex -n "contains -- edit (commandline -opc); or contains -- update (commandline -opc)" -s h -l help -d "Show help"
 

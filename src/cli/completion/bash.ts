@@ -63,7 +63,7 @@ _dex_completion() {
                 flags="--expand -e --full -f --json --help -h"
                 ;;
             edit|update)
-                flags="--name -n --description -d --priority -p --parent --add-blocker --remove-blocker --help -h"
+                flags="--name -n --description -d --priority -p --parent --remove-parent --add-blocker --remove-blocker --help -h"
                 ;;
             complete|done)
                 flags="--result -r --commit -c --help -h"
