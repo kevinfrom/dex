@@ -52,6 +52,13 @@ describe("completion command", () => {
       expect(out).toContain("complete");
       expect(out).toContain("completion");
     });
+
+    it("includes --remove-parent flag for edit command", async () => {
+      await runCli(["completion", "bash"], { storage });
+
+      const out = getStdout();
+      expect(out).toContain("--remove-parent");
+    });
   });
 
   describe("zsh completion", () => {
@@ -73,6 +80,15 @@ describe("completion command", () => {
       expect(out).toContain("list:List tasks");
       expect(out).toContain("show:View task details");
     });
+
+    it("includes --remove-parent flag for edit command", async () => {
+      await runCli(["completion", "zsh"], { storage });
+
+      const out = getStdout();
+      expect(out).toContain(
+        "--remove-parent[Promote subtask to top-level task]",
+      );
+    });
   });
 
   describe("fish completion", () => {
@@ -92,6 +108,13 @@ describe("completion command", () => {
       expect(out).toContain('-a "create" -d "Create a new task"');
       expect(out).toContain('-a "list" -d "List tasks"');
       expect(out).toContain('-a "show" -d "View task details"');
+    });
+
+    it("includes --remove-parent flag for edit command", async () => {
+      await runCli(["completion", "fish"], { storage });
+
+      const out = getStdout();
+      expect(out).toContain("-l remove-parent");
     });
   });
 
