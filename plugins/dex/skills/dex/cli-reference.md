@@ -67,7 +67,11 @@ This captures commit SHA, message, and branch automatically. The linked GitHub/S
 dex edit <id> -n "Updated name" --description "Updated description"
 dex edit <id> --add-blocker xyz123      # Add blocking dependency
 dex edit <id> --remove-blocker xyz123   # Remove blocking dependency
+dex edit <id> --parent xyz123           # Move task under a new parent
+dex edit <id> --remove-parent           # Promote a subtask to a top-level task
 ```
+
+Note: `--parent` and `--remove-parent` cannot be used together.
 
 ## Delete a Task
 
